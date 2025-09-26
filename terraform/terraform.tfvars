@@ -1,0 +1,9 @@
+aws_region           = "il-central-1"         # Replace with your desired region (e.g., "tlv")
+key_name             = "myVPN"            # Replace with your actual key pair name
+vpc_name             = "Main"             # Replace with the VPC name
+subnet_name          = "Public"           # Replace with the subnet name
+security_group_name  = "twingate"         # Replace with the security group name
+awc_cli_profile = "terraform"
+AWS_instance_type = "t3.micro"
+EC2_Name = "CryptoBot"
+script_name = "build_crypto_bot.sh"
