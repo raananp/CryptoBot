@@ -1,0 +1,22 @@
+{
+  "name": "api-gateway-nest",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "nest build"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.1",
+    "ioredis": "^5.3.2",
+    "mongoose": "^8.6.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.3.2",
+    "typescript": "^5.4.5"
+  }
+}

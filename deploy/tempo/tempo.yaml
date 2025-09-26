@@ -1,0 +1,39 @@
+server:
+  http_listen_port: 3200
+  grpc_listen_port: 0
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        http: {}
+        grpc: {}
+
+ingester:
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/traces
+    wal:
+      path: /var/tempo/wal
+
+compactor:
+  compaction:
+    block_retention: 48h
+
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+  storage:
+    path: /var/tempo/generator/wal
+
+usage_report:
+  reporting_enabled: false

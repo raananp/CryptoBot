@@ -1,0 +1,56 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus self-scrape
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']
+
+  # Router / executor
+  - job_name: 'router-executor'
+    static_configs:
+      - targets: ['router-executor:9303']
+
+  # Portfolio accounting
+  - job_name: 'portfolio-accounting'
+    static_configs:
+      - targets: ['portfolio-accounting:9401']
+
+  # Exchange adapters (use the real service names + ports)
+  - job_name: 'binance-adapter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['exchange-adapter-binance:9101']
+
+  - job_name: 'bybit-adapter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['exchange-adapter-bybit:9102']
+
+  - job_name: 'deribit-adapter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['exchange-adapter-deribit:9105']
+  
+  - job_name: 'scanner-spot-arb'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['scanner-spot-arb:9301']
+  
+  - job_name: 'binance-options'
+    static_configs:
+      - targets: ['exchange-adapter-binance-options:9100']
+
+  - job_name: 'bybit-options'
+    static_configs:
+      - targets: ['exchange-adapter-bybit-options:9101']
+
+  # Optional future jobs:
+  # - job_name: 'scanner'
+  #   static_configs:
+  #     - targets: ['scanner-options-arb:9301']
+  # - job_name: 'risk'
+  #   static_configs:
+  #     - targets: ['risk-slippage-engine:9302']

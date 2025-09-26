@@ -1,0 +1,125 @@
+{
+    "title": "Options Adapters – Connectivity & Discovery",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Binance WS Connected",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "adapter_ws_connected{adapter=\"binance-options\"}",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "green", "value": 1 }
+              ]
+            },
+            "unit": "bool"
+          }
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Bybit WS Connected",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "adapter_ws_connected{adapter=\"bybit-options\"}",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "green", "value": 1 }
+              ]
+            },
+            "unit": "bool"
+          }
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Binance Symbols Discovered",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "adapter_symbols_discovered{adapter=\"binance-options\"}",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Bybit Symbols Discovered",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "adapter_symbols_discovered{adapter=\"bybit-options\"}",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Binance Active Orderbooks",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "redis_keys_total{db=\"0\",pattern=\"orderbook:binance_opt:*\"}",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Bybit Active Orderbooks",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "redis_keys_total{db=\"0\",pattern=\"orderbook:bybit_opt:*\"}",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      }
+    ],
+    "time": {
+      "from": "now-5m",
+      "to": "now"
+    },
+    "schemaVersion": 38,
+    "version": 1
+  }

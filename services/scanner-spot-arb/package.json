@@ -1,0 +1,11 @@
+{
+    "name": "scanner-spot-arb",
+    "version": "1.0.0",
+    "type": "module",
+    "license": "MIT",
+    "dependencies": {
+      "express": "^4.19.2",
+      "ioredis": "^5.4.1",
+      "prom-client": "^15.1.2"
+    }
+  }

@@ -1,0 +1,112 @@
+{
+    "annotations": { "list": [] },
+    "description": "Exchange adapters (HTTP + WS) visibility",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": null,
+    "iteration": 1700000000000,
+    "links": [],
+    "panels": [
+      {
+        "type": "row",
+        "title": "HTTP",
+        "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+        "collapsed": false,
+        "panels": []
+      },
+      {
+        "type": "timeseries",
+        "title": "HTTP requests / sec by endpoint",
+        "targets": [
+          {
+            "expr": "sum by (exchange, endpoint, status) (rate(exchange_http_requests_total[1m]))",
+            "legendFormat": "{{exchange}} {{endpoint}} {{status}}"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 }
+      },
+      {
+        "type": "timeseries",
+        "title": "HTTP 5xx rate by exchange",
+        "targets": [
+          {
+            "expr": "sum by (exchange) (rate(exchange_http_requests_total{status=~\"5..\"}[5m]))",
+            "legendFormat": "{{exchange}}"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 }
+      },
+      {
+        "type": "timeseries",
+        "title": "HTTP latency p95 by endpoint",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum by (exchange, endpoint, method, status, le) (rate(exchange_http_request_seconds_bucket[5m])))",
+            "legendFormat": "{{exchange}} {{endpoint}} {{method}}"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 9 }
+      },
+      {
+        "type": "row",
+        "title": "WebSocket",
+        "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+        "collapsed": false,
+        "panels": []
+      },
+      {
+        "type": "timeseries",
+        "title": "WS messages / sec (in/out)",
+        "targets": [
+          {
+            "expr": "sum by (exchange, direction) (rate(exchange_ws_messages_total[1m]))",
+            "legendFormat": "{{exchange}} {{direction}}"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 }
+      },
+      {
+        "type": "timeseries",
+        "title": "WS messages by channel (top 10)",
+        "targets": [
+          {
+            "expr": "topk(10, sum by (exchange, channel) (rate(exchange_ws_messages_total[1m])))",
+            "legendFormat": "{{exchange}} {{channel}}"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 }
+      },
+      {
+        "type": "timeseries",
+        "title": "WS reconnects rate",
+        "targets": [
+          {
+            "expr": "sum by (exchange) (rate(exchange_ws_reconnects_total[15m]))",
+            "legendFormat": "{{exchange}}"
+          }
+        ],
+        "gridPos": { "h": 6, "w": 12, "x": 0, "y": 26 }
+      },
+      {
+        "type": "stat",
+        "title": "Instruments tracked",
+        "targets": [
+          {
+            "expr": "exchange_instruments_total",
+            "legendFormat": "{{exchange}}"
+          }
+        ],
+        "gridPos": { "h": 6, "w": 12, "x": 12, "y": 26 }
+      }
+    ],
+    "schemaVersion": 38,
+    "style": "dark",
+    "tags": ["exchanges","adapters","ws","http"],
+    "templating": { "list": [] },
+    "time": { "from": "now-6h", "to": "now" },
+    "timezone": "",
+    "title": "Exchanges — HTTP & WS",
+    "version": 1,
+    "weekStart": ""
+  }

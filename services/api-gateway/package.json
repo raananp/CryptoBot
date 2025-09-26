@@ -1,0 +1,15 @@
+{
+  "name": "api-gateway",
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.0",
+    "prom-client": "^15.1.2",
+    "ws": "^8.18.0",
+    "node-fetch": "^3.3.2"
+  }
+}

@@ -1,0 +1,269 @@
+version: "3.9"
+
+services:
+  # --- Datastores ---
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    volumes: ["redis-data:/data"]
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    ports: ["27017:27017"]
+    volumes: ["mongo-data:/data/db"]
+    restart: unless-stopped
+
+  # --- APIs ---
+  api-gateway:
+    build: ../services/api-gateway
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      MONGO_URL: ${MONGO_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      MODE: ${MODE}
+      AUTO_TRADE: ${AUTO_TRADE}
+    depends_on: [redis, mongodb]
+    ports: ["8080:8080"]
+    restart: unless-stopped
+
+  api-gateway-nest:
+    build: ../services/api-gateway-nest
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      MONGO_URL: ${MONGO_URL}
+    depends_on: [redis, mongodb]
+    ports: ["8081:8081"]
+    restart: unless-stopped
+
+  config-secrets-service:
+    build: ../services/config-secrets-service
+    ports: ["9402:9402"]
+    restart: unless-stopped
+
+  health-aggregator:
+    build: ../services/health-aggregator
+    depends_on:
+      - api-gateway
+      - scanner-options-arb
+      - risk-slippage-engine
+      - order-simulator
+    ports: ["9405:9405"]
+    restart: unless-stopped
+
+  # --- Web ---
+  frontend-web:
+    build: ../services/frontend-web
+    depends_on: [api-gateway]
+    ports: ["3000:80"]
+    restart: unless-stopped
+
+  # --- Market adapters ---
+  # exchange-adapter-mock:
+  #   build: ../services/exchange-adapter-mock
+  #   env_file: ../.env
+  #   environment:
+  #     REDIS_URL: ${REDIS_URL}
+  #   depends_on: [redis]
+  #   restart: unless-stopped
+
+  exchange-adapter-deribit:
+    build: ../services/exchange-adapter-deribit
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+    depends_on: [redis]
+    restart: unless-stopped
+
+  exchange-adapter-binance:
+    build: ../services/exchange-adapter-binance
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      SYMBOLS: "BTCUSDT,ETHUSDT,ARBUSDT,OPUSDT,ADAUSDT,ATOMUSDT,XRPUSDT"
+      POLL_MS: "500"
+    depends_on: [redis]
+    restart: unless-stopped
+
+  exchange-adapter-bybit:
+    build: ../services/exchange-adapter-bybit
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      SYMBOLS: "BTCUSDT,ETHUSDT,ARBUSDT,OPUSDT,ADAUSDT,ATOMUSDT,XRPUSDT"
+      POLL_MS: "500"
+    depends_on: [redis]
+    restart: unless-stopped
+
+  exchange-adapter-binance-options:
+    build: ./services/exchange-adapter-binance-options
+    environment:
+      REDIS_URL: redis://redis:6379
+      PREFIX: binance_opt
+      BOOK_DEPTH: "50"
+      DISCOVER_INTERVAL: "300000"
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  exchange-adapter-bybit-options:
+    build: ../services/exchange-adapter-bybit-options
+    env_file: ../.env
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - WS_URL=${BYBIT_WS_URL}
+      - BYBIT_REST_URL=${BYBIT_REST_URL}
+      - BYBIT_BASE_COINS=${BYBIT_BASE_COINS}
+      - PREFIX=${BYBIT_PREFIX}
+      - BOOK_DEPTH=${BYBIT_BOOK_DEPTH}
+      - DISCOVER_INTERVAL=${BYBIT_DISCOVER_INTERVAL}
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # --- Core pipeline ---
+  scanner-options-arb:
+    build: ../services/scanner-options-arb
+    #scale: 0
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      SYMBOLS: "BTCUSDT,ETHUSDT,ARBUSDT,OPUSDT,ADAUSDT,ATOMUSDT,XRPUSDT"
+      BINANCE_TAKER_BPS: "10"
+      BYBIT_TAKER_BPS: "10"
+      SCAN_INTERVAL_MS: "1000"
+    depends_on:
+      - redis
+      - exchange-adapter-binance
+      - exchange-adapter-bybit
+    restart: unless-stopped
+  
+  scanner-spot-arb:
+    build: ../services/scanner-spot-arb
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      QUOTE: "USDT"
+    depends_on:
+      - redis
+      - exchange-adapter-binance
+      - exchange-adapter-bybit
+    ports: ["9301:9301"]  # optional; only needed if you want to hit it from your host
+    restart: unless-stopped
+
+  risk-slippage-engine:
+    build: ../services/risk-slippage-engine
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+    depends_on:
+      - redis
+      - scanner-options-arb
+    restart: unless-stopped
+
+  router-executor:
+    build: ../services/router-executor
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      MONGO_URL: ${MONGO_URL}
+    depends_on:
+      - redis
+      - risk-slippage-engine
+    ports: ["9303:9303"]
+    restart: unless-stopped
+
+  order-simulator:
+    build: ../services/order-simulator
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      MONGO_URL: ${MONGO_URL}
+    depends_on:
+      - redis
+      - risk-slippage-engine
+      - mongodb
+    restart: unless-stopped
+  
+  trade-assembler:
+    build:
+      context: ../services/trade-assembler
+      dockerfile: Dockerfile
+    image: trade-assembler:latest
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - MONGO_URL=mongodb://mongodb:27017/arb
+      - PORT=9305
+    depends_on:
+      - redis
+      - mongodb
+    ports:
+      - "9305:9305"
+
+  portfolio-accounting:
+    build: ../services/portfolio-accounting
+    env_file: ../.env
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      MONGO_URL: ${MONGO_URL}
+    depends_on:
+      - redis
+      - mongodb
+    ports: ["9401:9401"]
+    restart: unless-stopped
+
+  # --- Observability ---
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prom/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports: ["9090:9090"]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    env_file: ../.env
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    ports: ["3001:3000"]
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:2.9.0
+    command: ["-config.file=/etc/loki/config.yml"]
+    volumes:
+      - ./loki/config.yml:/etc/loki/config.yml
+      - loki-data:/loki
+    ports: ["3100:3100"]
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    volumes:
+      - ./promtail/config.yml:/etc/promtail/config.yml
+      - /var/log:/var/log:ro
+    depends_on: [loki]
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:2.8.2
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo/tempo.yaml
+      - tempo-data:/var/tempo
+    ports: ["3200:3200"]
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  mongo-data:
+  grafana-data:
+  loki-data:
+  tempo-data:

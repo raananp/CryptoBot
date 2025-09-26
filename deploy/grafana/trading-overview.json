@@ -1,0 +1,34 @@
+{
+  "title": "Trading Overview",
+  "timezone": "browser",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Opportunities Seen",
+      "targets": [
+        {
+          "expr": "opportunities_total"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Approved",
+      "targets": [
+        {
+          "expr": "approved_total"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Trades",
+      "targets": [
+        {
+          "expr": "trades_total"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 27
+}

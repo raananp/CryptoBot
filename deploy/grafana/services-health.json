@@ -1,0 +1,51 @@
+{
+  "title": "Services Health",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "API Gateway Up",
+      "targets": [
+        {
+          "expr": "service_up{service='api-gateway'}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Scanner Up",
+      "targets": [
+        {
+          "expr": "service_up{service='scanner-options-arb'}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Risk Up",
+      "targets": [
+        {
+          "expr": "service_up{service='risk-slippage-engine'}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Simulator Up",
+      "targets": [
+        {
+          "expr": "service_up{service='order-simulator'}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Adapter Up",
+      "targets": [
+        {
+          "expr": "service_up{service='exchange-adapter-mock'}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 27
+}

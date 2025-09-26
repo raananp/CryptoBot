@@ -1,0 +1,67 @@
+{
+    "id": null,
+    "title": "Arbitrage Bot - Exchange & Scanner Overview",
+    "tags": ["arbitrage", "exchanges", "scanner"],
+    "timezone": "browser",
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "10s",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Coins Tracked per Exchange",
+        "targets": [
+          {
+            "expr": "{__name__=~\".*instruments_total\"}",
+            "legendFormat": "{{__name__}}",
+            "interval": ""
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "id": 1
+      },
+      {
+        "type": "graph",
+        "title": "Orderbook Update Rate (per second)",
+        "targets": [
+          {
+            "expr": "rate({__name__=~\".*_orderbook_updates_total\"}[1m])",
+            "legendFormat": "{{__name__}}",
+            "interval": ""
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "id": 2
+      },
+      {
+        "type": "graph",
+        "title": "Opportunities Found (per second)",
+        "targets": [
+          {
+            "expr": "rate(executor_opportunities_total[1m])",
+            "legendFormat": "opportunities",
+            "interval": ""
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "id": 3
+      },
+      {
+        "type": "graph",
+        "title": "Trades Emitted (per second)",
+        "targets": [
+          {
+            "expr": "rate(executor_trades_emitted_total[1m])",
+            "legendFormat": "trades",
+            "interval": ""
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "id": 4
+      }
+    ]
+  }
