@@ -98,7 +98,7 @@ services:
     restart: unless-stopped
 
   exchange-adapter-binance-options:
-    build: ./services/exchange-adapter-binance-options
+    build: ../services/exchange-adapter-binance-options
     environment:
       REDIS_URL: redis://redis:6379
       PREFIX: binance_opt
